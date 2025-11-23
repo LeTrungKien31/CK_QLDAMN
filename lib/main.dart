@@ -2,14 +2,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'services/api_service.dart';
+import 'services/database_service.dart';
 import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  ApiService().init();
+  
+  try {
+    await DatabaseService().init();
+    print('Database initialized successfully');
+  } catch (e) {
+    print('Failed to initialize database: $e');
+  }
+  
   runApp(const MyApp());
 }
 

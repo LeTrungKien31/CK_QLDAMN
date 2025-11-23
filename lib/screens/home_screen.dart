@@ -1,7 +1,9 @@
+// lib/screens/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import 'activity/activity_list_screen.dart';
+import 'activity/activity_form_screen.dart';
 import 'student/student_list_screen.dart';
 import 'attendance/attendance_screen.dart';
 import 'report/report_screen.dart';
@@ -18,22 +20,22 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-  
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.currentUser!;
-    
+
     final List<Widget> screens = user.isAdmin() || user.isTeacher()
-        ? [
-            const ActivityListScreen(),
-            const StudentListScreen(),
-            const AttendanceScreen(),
-            const ReportScreen(),
+        ? const [
+            ActivityListScreen(),
+            StudentListScreen(),
+            AttendanceScreen(),
+            ReportScreen(),
           ]
-        : [
-            const ActivityListScreen(), // Student view
-            const AttendanceScreen(),
+        : const [
+            ActivityListScreen(), // Student view
+            AttendanceScreen(),
           ];
 
     return Scaffold(
@@ -48,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // TODO: Show notifications
             },
           ),
-          PopupMenuButton(
+          PopupMenuButton<String>(
             icon: CircleAvatar(
               backgroundColor: Colors.white,
               child: Text(
@@ -56,8 +58,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: TextStyle(color: Colors.blue.shade700),
               ),
             ),
-            itemBuilder: (context) => [
-              PopupMenuItem(
+            itemBuilder: (context) => <PopupMenuEntry<String>>[
+              // Thông tin user (không chọn được nên không cần value)
+              PopupMenuItem<String>(
+                enabled: false,
                 child: ListTile(
                   leading: const Icon(Icons.person),
                   title: Text(user.fullName),
@@ -66,14 +70,14 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const PopupMenuDivider(),
               if (user.isAdmin()) ...[
-                const PopupMenuItem(
+                const PopupMenuItem<String>(
                   value: 'users',
                   child: ListTile(
                     leading: Icon(Icons.people),
                     title: Text('Quản lý người dùng'),
                   ),
                 ),
-                const PopupMenuItem(
+                const PopupMenuItem<String>(
                   value: 'backup',
                   child: ListTile(
                     leading: Icon(Icons.backup),
@@ -82,14 +86,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const PopupMenuDivider(),
               ],
-              const PopupMenuItem(
+              const PopupMenuItem<String>(
                 value: 'change_password',
                 child: ListTile(
                   leading: Icon(Icons.lock),
                   title: Text('Đổi mật khẩu'),
                 ),
               ),
-              const PopupMenuItem(
+              const PopupMenuItem<String>(
                 value: 'logout',
                 child: ListTile(
                   leading: Icon(Icons.logout),
@@ -167,21 +171,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
       ),
-      floatingActionButton: _selectedIndex == 0 &&
-              (user.isAdmin() || user.isTeacher())
-          ? FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ActivityFormScreen(),
-                  ),
-                );
-              },
-              backgroundColor: Colors.blue.shade700,
-              child: const Icon(Icons.add, color: Colors.white),
-            )
-          : null,
+      floatingActionButton:
+          _selectedIndex == 0 && (user.isAdmin() || user.isTeacher())
+              ? FloatingActionButton(
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ActivityFormScreen(),
+                      ),
+                    );
+                    // Refresh list if needed
+                    if (result == true) {
+                      setState(() {});
+                    }
+                  },
+                  backgroundColor: Colors.blue.shade700,
+                  child: const Icon(Icons.add, color: Colors.white),
+                )
+              : null,
     );
   }
 

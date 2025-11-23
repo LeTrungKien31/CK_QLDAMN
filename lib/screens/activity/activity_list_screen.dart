@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../models/activity.dart';
-import '../../services/api_service.dart';
+import '../../services/database_service.dart';
 import 'activity_detail_screen.dart';
 
 class ActivityListScreen extends StatefulWidget {
@@ -15,7 +15,7 @@ class ActivityListScreen extends StatefulWidget {
 class _ActivityListScreenState extends State<ActivityListScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final ApiService _apiService = ApiService();
+  final DatabaseService _dbService = DatabaseService();
   final TextEditingController _searchController = TextEditingController();
   
   List<Activity> _activities = [];
@@ -52,14 +52,14 @@ class _ActivityListScreenState extends State<ActivityListScreen>
   Future<void> _loadActivities() async {
     setState(() => _isLoading = true);
     try {
-      final activities = await _apiService.getActivities(
+      final activitiesData = await _dbService.getActivities(
         status: _selectedStatus == 'all' ? null : _selectedStatus,
         search: _searchController.text.isNotEmpty 
             ? _searchController.text 
             : null,
       );
       setState(() {
-        _activities = activities;
+        _activities = activitiesData.map((data) => Activity.fromJson(data)).toList();
         _isLoading = false;
       });
     } catch (e) {
