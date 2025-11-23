@@ -1,6 +1,5 @@
 name: student_attendance_app
-description: Ứng dụng quản lý và điểm danh sinh viên
-
+description: A student attendance management application
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -10,48 +9,24 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  
-  # Database & API
-  postgres: ^2.6.2
-  http: ^1.1.2
-  dio: ^5.4.0
-  
+
+  # UI & Design
+  cupertino_icons: ^1.0.6
+  google_fonts: ^6.1.0
+  intl: ^0.19.0
+
   # State Management
   provider: ^6.1.1
-  
-  # UI
-  cupertino_icons: ^1.0.2
-  google_fonts: ^6.1.0
-  intl: ^0.18.1
-  flutter_svg: ^2.0.9
-  
+
+  # Network
+  http: ^1.2.0
+
+  # Storage
+  shared_preferences: ^2.2.2
+
   # QR Code
   qr_flutter: ^4.1.0
-  qr_code_scanner: ^1.0.1
-  mobile_scanner: ^3.5.5
-  
-  # Excel & PDF
-  excel: ^4.0.2
-  pdf: ^3.10.7
-  printing: ^5.11.1
-  syncfusion_flutter_xlsio: ^24.1.41
-  
-  # File handling
-  file_picker: ^6.1.1
-  path_provider: ^2.1.1
-  
-  # Permissions
-  permission_handler: ^11.1.0
-  
-  # Security & Auth
-  crypto: ^3.0.3
-  jwt_decoder: ^2.0.1
-  flutter_secure_storage: ^9.0.0
-  
-  # Utils
-  shared_preferences: ^2.2.2
-  uuid: ^4.2.2
-  connectivity_plus: ^5.0.2
+  mobile_scanner: ^3.5.6
 
 dev_dependencies:
   flutter_test:
@@ -60,3 +35,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  # assets:
+  #   - images/
+  #   - icons/
