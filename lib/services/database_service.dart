@@ -1055,4 +1055,91 @@ class DatabaseService {
     // Implement delete backup logic
     return true;
   }
+  // Thêm vào phần STUDENT METHODS của DatabaseService
+
+  Future<Map<String, dynamic>?> createStudent(Map<String, dynamic> studentData) async {
+    try {
+      final result = await _connection!.execute(
+        Sql.named('''
+          INSERT INTO students (
+            user_id, student_code, class_name, major, 
+            academic_year, date_of_birth, address
+          )
+          VALUES (
+            @userId, @studentCode, @className, @major,
+            @academicYear, @dateOfBirth, @address
+          )
+          RETURNING *
+        '''),
+        parameters: {
+          'userId': studentData['user_id'],
+          'studentCode': studentData['student_code'],
+          'className': studentData['class_name'],
+          'major': studentData['major'],
+          'academicYear': studentData['academic_year'],
+          'dateOfBirth': studentData['date_of_birth'],
+          'address': studentData['address'],
+        },
+      );
+
+      if (result.isEmpty) return null;
+
+      final row = result.first;
+      return {
+        'id': row[0],
+        'user_id': row[1],
+        'student_code': row[2],
+        'class_name': row[3],
+        'major': row[4],
+        'academic_year': row[5],
+        'date_of_birth': row[6],
+        'address': row[7],
+      };
+    } catch (e) {
+      print('Create student error: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateStudent(int studentId, Map<String, dynamic> studentData) async {
+    try {
+      final result = await _connection!.execute(
+        Sql.named('''
+          UPDATE students 
+          SET class_name = @className,
+              major = @major,
+              academic_year = @academicYear,
+              date_of_birth = @dateOfBirth,
+              address = @address
+          WHERE id = @studentId
+          RETURNING *
+        '''),
+        parameters: {
+          'studentId': studentId,
+          'className': studentData['class_name'],
+          'major': studentData['major'],
+          'academicYear': studentData['academic_year'],
+          'dateOfBirth': studentData['date_of_birth'],
+          'address': studentData['address'],
+        },
+      );
+
+      if (result.isEmpty) return null;
+
+      final row = result.first;
+      return {
+        'id': row[0],
+        'user_id': row[1],
+        'student_code': row[2],
+        'class_name': row[3],
+        'major': row[4],
+        'academic_year': row[5],
+        'date_of_birth': row[6],
+        'address': row[7],
+      };
+    } catch (e) {
+      print('Update student error: $e');
+      return null;
+    }
+  }
 }

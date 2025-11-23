@@ -12,8 +12,10 @@ void main() async {
   
   try {
     await DatabaseService().init();
+    // ignore: avoid_print
     print('Database initialized successfully');
   } catch (e) {
+    // ignore: avoid_print
     print('Failed to initialize database: $e');
   }
   

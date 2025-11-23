@@ -106,7 +106,8 @@ class _ReportScreenState extends State<ReportScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.white.withOpacity(0.3)),
+                        border:
+                            Border.all(color: Colors.white.withOpacity(0.3)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -170,7 +171,9 @@ class _ReportScreenState extends State<ReportScreen> {
                                     child: _StatCard(
                                       icon: Icons.event,
                                       label: 'Tổng hoạt động',
-                                      value: _statistics!['total_activities']?.toString() ?? '0',
+                                      value: _statistics!['total_activities']
+                                              ?.toString() ??
+                                          '0',
                                       color: Colors.blue,
                                     ),
                                   ),
@@ -179,7 +182,9 @@ class _ReportScreenState extends State<ReportScreen> {
                                     child: _StatCard(
                                       icon: Icons.people,
                                       label: 'Sinh viên',
-                                      value: _statistics!['total_students']?.toString() ?? '0',
+                                      value: _statistics!['total_students']
+                                              ?.toString() ??
+                                          '0',
                                       color: Colors.green,
                                     ),
                                   ),
@@ -192,7 +197,9 @@ class _ReportScreenState extends State<ReportScreen> {
                                     child: _StatCard(
                                       icon: Icons.app_registration,
                                       label: 'Đăng ký',
-                                      value: _statistics!['total_registrations']?.toString() ?? '0',
+                                      value: _statistics!['total_registrations']
+                                              ?.toString() ??
+                                          '0',
                                       color: Colors.orange,
                                     ),
                                   ),
@@ -201,14 +208,16 @@ class _ReportScreenState extends State<ReportScreen> {
                                     child: _StatCard(
                                       icon: Icons.check_circle,
                                       label: 'Đã điểm danh',
-                                      value: _statistics!['total_attendances']?.toString() ?? '0',
+                                      value: _statistics!['total_attendances']
+                                              ?.toString() ??
+                                          '0',
                                       color: Colors.purple,
                                     ),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 32),
-                              
+
                               // Tỷ lệ tham gia
                               const Text(
                                 'Tỷ lệ tham gia',
@@ -235,7 +244,10 @@ class _ReportScreenState extends State<ReportScreen> {
                                       const Divider(height: 32),
                                       _buildAttendanceRate(
                                         'Tỷ lệ vắng',
-                                        100 - (_statistics!['attendance_rate'] ?? 0.0),
+                                        100.0 -
+                                            ((_statistics!['attendance_rate'] ??
+                                                    0) as num)
+                                                .toDouble(),
                                         Colors.red,
                                       ),
                                     ],
@@ -245,7 +257,8 @@ class _ReportScreenState extends State<ReportScreen> {
                               const SizedBox(height: 32),
 
                               // Hoạt động theo loại
-                              if (_statistics!['activities_by_type'] != null) ...[
+                              if (_statistics!['activities_by_type'] !=
+                                  null) ...[
                                 const Text(
                                   'Hoạt động theo loại',
                                   style: TextStyle(
@@ -262,12 +275,15 @@ class _ReportScreenState extends State<ReportScreen> {
                                   child: Padding(
                                     padding: const EdgeInsets.all(16),
                                     child: Column(
-                                      children: (_statistics!['activities_by_type'] as List)
-                                          .map((item) => _buildTypeRow(
-                                                item['activity_type'] ?? 'Khác',
-                                                item['count'] ?? 0,
-                                              ))
-                                          .toList(),
+                                      children:
+                                          (_statistics!['activities_by_type']
+                                                  as List)
+                                              .map((item) => _buildTypeRow(
+                                                    item['activity_type'] ??
+                                                        'Khác',
+                                                    item['count'] ?? 0,
+                                                  ))
+                                              .toList(),
                                     ),
                                   ),
                                 ),
@@ -290,12 +306,13 @@ class _ReportScreenState extends State<ReportScreen> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Column(
-                                    children: (_statistics!['top_students'] as List)
-                                        .take(10)
-                                        .toList()
-                                        .asMap()
-                                        .entries
-                                        .map((entry) {
+                                    children:
+                                        (_statistics!['top_students'] as List)
+                                            .take(10)
+                                            .toList()
+                                            .asMap()
+                                            .entries
+                                            .map((entry) {
                                       final index = entry.key;
                                       final student = entry.value;
                                       return _buildStudentRow(
@@ -388,7 +405,7 @@ class _ReportScreenState extends State<ReportScreen> {
   Widget _buildStudentRow(int rank, String name, String code, int count) {
     Color rankColor;
     IconData rankIcon;
-    
+
     if (rank == 1) {
       rankColor = Colors.amber;
       rankIcon = Icons.emoji_events;

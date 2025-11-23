@@ -35,6 +35,7 @@ class AuthProvider with ChangeNotifier {
       }
       return false;
     } catch (e) {
+      // ignore: avoid_print
       print('Login error in provider: $e');
       return false;
     }
@@ -51,6 +52,7 @@ class AuthProvider with ChangeNotifier {
     try {
       return await _dbService.changePassword(oldPassword, newPassword);
     } catch (e) {
+      // ignore: avoid_print
       print('Change password error: $e');
       return false;
     }

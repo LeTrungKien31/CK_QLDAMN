@@ -36,6 +36,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
       final activity = await _apiService.getActivityById(widget.activityId);
       final registrations = await _apiService.getActivityRegistrations(widget.activityId);
       
+      // ignore: use_build_context_synchronously
       final user = Provider.of<AuthProvider>(context, listen: false).currentUser;
       final isRegistered = registrations.any((r) => 
         r['student']?['user_id'] == user?.id
@@ -369,13 +370,16 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
               try {
                 await _apiService.deleteActivity(widget.activityId);
                 if (mounted) {
+                  // ignore: use_build_context_synchronously
                   Navigator.pop(context);
+                  // ignore: use_build_context_synchronously
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Đã xóa hoạt động')),
                   );
                 }
               } catch (e) {
                 if (mounted) {
+                  // ignore: use_build_context_synchronously
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Lỗi: $e')),
                   );

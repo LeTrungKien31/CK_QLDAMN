@@ -71,6 +71,7 @@ class _ActivityFormScreenState extends State<ActivityFormScreen> {
 
     if (pickedDate != null && mounted) {
       final TimeOfDay? pickedTime = await showTimePicker(
+        // ignore: use_build_context_synchronously
         context: context,
         initialTime: TimeOfDay.now(),
       );
@@ -231,6 +232,7 @@ class _ActivityFormScreenState extends State<ActivityFormScreen> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
+                    // ignore: deprecated_member_use
                     value: _activityType,
                     decoration: InputDecoration(
                       labelText: 'Loại hoạt động',

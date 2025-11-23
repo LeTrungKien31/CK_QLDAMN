@@ -1,5 +1,6 @@
 // lib/screens/admin/user_management_screen.dart
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../models/user.dart';
 import '../../services/api_service.dart';
 
@@ -60,166 +61,289 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     final fullNameController = TextEditingController(text: user?.fullName);
     final phoneController = TextEditingController(text: user?.phone);
     final passwordController = TextEditingController();
+    
+    // Student fields
+    final studentCodeController = TextEditingController();
+    final classNameController = TextEditingController();
+    final majorController = TextEditingController();
+    final academicYearController = TextEditingController();
+    final addressController = TextEditingController();
+    DateTime? dateOfBirth;
+    
     String selectedRole = user?.role ?? 'student';
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(isEdit ? 'Chỉnh sửa người dùng' : 'Thêm người dùng mới'),
-        content: Form(
-          key: formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: usernameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Tên đăng nhập *',
-                    prefixIcon: Icon(Icons.person),
-                  ),
-                  enabled: !isEdit,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Vui lòng nhập tên đăng nhập';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email *',
-                    prefixIcon: Icon(Icons.email),
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Vui lòng nhập email';
-                    }
-                    if (!value.contains('@')) {
-                      return 'Email không hợp lệ';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: fullNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Họ và tên *',
-                    prefixIcon: Icon(Icons.badge),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Vui lòng nhập họ và tên';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: phoneController,
-                  decoration: const InputDecoration(
-                    labelText: 'Số điện thoại',
-                    prefixIcon: Icon(Icons.phone),
-                  ),
-                  keyboardType: TextInputType.phone,
-                ),
-                const SizedBox(height: 12),
-                if (!isEdit)
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(isEdit ? 'Chỉnh sửa người dùng' : 'Thêm người dùng mới'),
+          content: Form(
+            key: formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
                   TextFormField(
-                    controller: passwordController,
+                    controller: usernameController,
                     decoration: const InputDecoration(
-                      labelText: 'Mật khẩu *',
-                      prefixIcon: Icon(Icons.lock),
+                      labelText: 'Tên đăng nhập *',
+                      prefixIcon: Icon(Icons.person),
                     ),
-                    obscureText: true,
+                    enabled: !isEdit,
                     validator: (value) {
-                      if (!isEdit && (value == null || value.isEmpty)) {
-                        return 'Vui lòng nhập mật khẩu';
-                      }
-                      if (!isEdit && value!.length < 6) {
-                        return 'Mật khẩu phải có ít nhất 6 ký tự';
+                      if (value == null || value.isEmpty) {
+                        return 'Vui lòng nhập tên đăng nhập';
                       }
                       return null;
                     },
                   ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  value: selectedRole,
-                  decoration: const InputDecoration(
-                    labelText: 'Vai trò *',
-                    prefixIcon: Icon(Icons.admin_panel_settings),
-                  ),
-                  items: const [
-                    DropdownMenuItem(value: 'student', child: Text('Sinh viên')),
-                    DropdownMenuItem(value: 'teacher', child: Text('Giảng viên')),
-                    DropdownMenuItem(value: 'admin', child: Text('Quản trị viên')),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
-                      selectedRole = value;
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (!formKey.currentState!.validate()) return;
-
-              final userData = {
-                'username': usernameController.text.trim(),
-                'email': emailController.text.trim(),
-                'full_name': fullNameController.text.trim(),
-                'phone': phoneController.text.trim(),
-                'role': selectedRole,
-                if (!isEdit) 'password': passwordController.text,
-              };
-
-              try {
-                if (isEdit) {
-                  await _apiService.updateUser(user.id!, userData);
-                } else {
-                  await _apiService.createUser(userData);
-                }
-
-                if (mounted) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(isEdit
-                          ? 'Đã cập nhật người dùng'
-                          : 'Đã thêm người dùng mới'),
-                      backgroundColor: Colors.green,
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: emailController,
+                    decoration: const InputDecoration(
+                      labelText: 'Email *',
+                      prefixIcon: Icon(Icons.email),
                     ),
-                  );
-                  _loadUsers();
-                }
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Lỗi: $e')),
-                  );
-                }
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue.shade700,
-              foregroundColor: Colors.white,
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Vui lòng nhập email';
+                      }
+                      if (!value.contains('@')) {
+                        return 'Email không hợp lệ';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: fullNameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Họ và tên *',
+                      prefixIcon: Icon(Icons.badge),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Vui lòng nhập họ và tên';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: phoneController,
+                    decoration: const InputDecoration(
+                      labelText: 'Số điện thoại',
+                      prefixIcon: Icon(Icons.phone),
+                    ),
+                    keyboardType: TextInputType.phone,
+                  ),
+                  const SizedBox(height: 12),
+                  if (!isEdit)
+                    TextFormField(
+                      controller: passwordController,
+                      decoration: const InputDecoration(
+                        labelText: 'Mật khẩu *',
+                        prefixIcon: Icon(Icons.lock),
+                      ),
+                      obscureText: true,
+                      validator: (value) {
+                        if (!isEdit && (value == null || value.isEmpty)) {
+                          return 'Vui lòng nhập mật khẩu';
+                        }
+                        if (!isEdit && value!.length < 6) {
+                          return 'Mật khẩu phải có ít nhất 6 ký tự';
+                        }
+                        return null;
+                      },
+                    ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String>(
+                    value: selectedRole,
+                    decoration: const InputDecoration(
+                      labelText: 'Vai trò *',
+                      prefixIcon: Icon(Icons.admin_panel_settings),
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: 'student', child: Text('Sinh viên')),
+                      DropdownMenuItem(value: 'teacher', child: Text('Giảng viên')),
+                      DropdownMenuItem(value: 'admin', child: Text('Quản trị viên')),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() {
+                          selectedRole = value;
+                        });
+                      }
+                    },
+                  ),
+                  
+                  // Student-specific fields
+                  if (selectedRole == 'student' && !isEdit) ...[
+                    const SizedBox(height: 16),
+                    const Divider(),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Thông tin sinh viên',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: studentCodeController,
+                      decoration: const InputDecoration(
+                        labelText: 'Mã sinh viên *',
+                        prefixIcon: Icon(Icons.badge_outlined),
+                      ),
+                      validator: (value) {
+                        if (selectedRole == 'student' && (value == null || value.isEmpty)) {
+                          return 'Vui lòng nhập mã sinh viên';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: classNameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Lớp',
+                        prefixIcon: Icon(Icons.class_),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: majorController,
+                      decoration: const InputDecoration(
+                        labelText: 'Ngành học',
+                        prefixIcon: Icon(Icons.school),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: academicYearController,
+                      decoration: const InputDecoration(
+                        labelText: 'Niên khóa',
+                        prefixIcon: Icon(Icons.calendar_today),
+                        hintText: 'VD: 2020-2024',
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    InkWell(
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime(2000),
+                          firstDate: DateTime(1980),
+                          lastDate: DateTime.now(),
+                        );
+                        if (picked != null) {
+                          setDialogState(() {
+                            dateOfBirth = picked;
+                          });
+                        }
+                      },
+                      child: InputDecorator(
+                        decoration: const InputDecoration(
+                          labelText: 'Ngày sinh',
+                          prefixIcon: Icon(Icons.cake),
+                        ),
+                        child: Text(
+                          dateOfBirth != null
+                              ? DateFormat('dd/MM/yyyy').format(dateOfBirth!)
+                              : 'Chọn ngày sinh',
+                          style: TextStyle(
+                            color: dateOfBirth != null ? Colors.black : Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: addressController,
+                      decoration: const InputDecoration(
+                        labelText: 'Địa chỉ',
+                        prefixIcon: Icon(Icons.home),
+                      ),
+                      maxLines: 2,
+                    ),
+                  ],
+                ],
+              ),
             ),
-            child: Text(isEdit ? 'Cập nhật' : 'Thêm'),
           ),
-        ],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (!formKey.currentState!.validate()) return;
+
+                final userData = {
+                  'username': usernameController.text.trim(),
+                  'email': emailController.text.trim(),
+                  'full_name': fullNameController.text.trim(),
+                  'phone': phoneController.text.trim(),
+                  'role': selectedRole,
+                  if (!isEdit) 'password': passwordController.text,
+                  
+                  // Student fields
+                  if (selectedRole == 'student' && !isEdit) ...{
+                    'student_code': studentCodeController.text.trim(),
+                    'class_name': classNameController.text.trim().isNotEmpty 
+                        ? classNameController.text.trim() 
+                        : null,
+                    'major': majorController.text.trim().isNotEmpty 
+                        ? majorController.text.trim() 
+                        : null,
+                    'academic_year': academicYearController.text.trim().isNotEmpty 
+                        ? academicYearController.text.trim() 
+                        : null,
+                    'date_of_birth': dateOfBirth?.toIso8601String(),
+                    'address': addressController.text.trim().isNotEmpty 
+                        ? addressController.text.trim() 
+                        : null,
+                  },
+                };
+
+                try {
+                  if (isEdit) {
+                    await _apiService.updateUser(user.id!, userData);
+                  } else {
+                    await _apiService.createUser(userData);
+                  }
+
+                  if (mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(isEdit
+                            ? 'Đã cập nhật người dùng'
+                            : 'Đã thêm người dùng mới'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                    _loadUsers();
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Lỗi: $e')),
+                    );
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue.shade700,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(isEdit ? 'Cập nhật' : 'Thêm'),
+            ),
+          ],
+        ),
       ),
     );
   }
