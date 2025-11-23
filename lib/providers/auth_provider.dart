@@ -1,7 +1,7 @@
 // lib/providers/auth_provider.dart
 import 'package:flutter/material.dart';
 import '../models/user.dart';
-import '../services/api_service.dart';
+import '../services/database_service.dart';
 
 class AuthProvider with ChangeNotifier {
   User? _currentUser;
@@ -10,29 +10,38 @@ class AuthProvider with ChangeNotifier {
   User? get currentUser => _currentUser;
   bool get isAuthenticated => _isAuthenticated;
 
-  final ApiService _apiService = ApiService();
+  final DatabaseService _dbService = DatabaseService();
 
   Future<void> checkAuth() async {
-    await _apiService.loadToken();
-    _currentUser = await _apiService.getCurrentUser();
-    _isAuthenticated = _currentUser != null;
+    final userData = await _dbService.getCurrentUser();
+    if (userData != null) {
+      _currentUser = User.fromJson(userData);
+      _isAuthenticated = true;
+    } else {
+      _currentUser = null;
+      _isAuthenticated = false;
+    }
     notifyListeners();
   }
 
   Future<bool> login(String username, String password) async {
     try {
-      final data = await _apiService.login(username, password);
-      _currentUser = User.fromJson(data['user']);
-      _isAuthenticated = true;
-      notifyListeners();
-      return true;
+      final userData = await _dbService.login(username, password);
+      if (userData != null) {
+        _currentUser = User.fromJson(userData);
+        _isAuthenticated = true;
+        notifyListeners();
+        return true;
+      }
+      return false;
     } catch (e) {
+      print('Login error in provider: $e');
       return false;
     }
   }
 
   Future<void> logout() async {
-    await _apiService.logout();
+    await _dbService.clearCurrentUser();
     _currentUser = null;
     _isAuthenticated = false;
     notifyListeners();
@@ -40,8 +49,9 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> changePassword(String oldPassword, String newPassword) async {
     try {
-      return await _apiService.changePassword(oldPassword, newPassword);
+      return await _dbService.changePassword(oldPassword, newPassword);
     } catch (e) {
+      print('Change password error: $e');
       return false;
     }
   }
